@@ -1,0 +1,30 @@
+import pandas as pd
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+df = pd.read_csv("data/rt_audience_sentiment.csv")
+df["RT Audience Sentiment"] = pd.to_numeric(df["RT Audience Sentiment"], errors="coerce")
+df = df.dropna(subset=["RT Audience Sentiment"])
+print(f"Analysing {len(df)} movies with audience sentiment data...\n")
+mean_sent = df["RT Audience Sentiment"].mean()
+print(f"Average audience sentiment across all movies: {mean_sent:.3f}")
+top = df.sort_values("RT Audience Sentiment", ascending=False).head(10)
+low = df.sort_values("RT Audience Sentiment", ascending=True).head(10)
+print("\nTop 10 movies with highest positive sentiment:")
+print(top[["Title", "RT Audience Sentiment", "Review Count"]].to_string(index=False))
+print("\n10 movies with lowest negative sentiment:")
+print(low[["Title", "RT Audience Sentiment", "Review Count"]].to_string(index=False))
+divisive = df[(df["RT Audience Sentiment"] > -0.2) & (df["RT Audience Sentiment"] < 0.2)]
+print(f"\nDivisive / mixed-feeling movies ({len(divisive)} found):")
+print(divisive[["Title", "RT Audience Sentiment", "Review Count"]].head(10).to_string(index=False))
+plt.figure(figsize=(8,6))
+plt.hist(df["RT Audience Sentiment"], bins=20, alpha=0.7)
+plt.title("Distribution of Audience Sentiment (VADER)")
+plt.xlabel("Sentiment Score (-1 = negative, +1 = positive)")
+plt.ylabel("Number of Movies")
+plt.grid(True)
+plt.tight_layout()
+os.makedirs("data", exist_ok=True)
+plt.savefig("data/audience_sentiment_distribution.png")
+print("\nSentiment distribution saved to data/audience_sentiment_distribution.png")
+print("Results saved successfully.")
